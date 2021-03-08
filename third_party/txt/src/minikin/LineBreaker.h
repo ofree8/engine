@@ -97,7 +97,10 @@ class LineBreaker {
   // could be here but it's better for performance that it's upstream because of
   // the cost of constructing and comparing the ICU Locale object.
   // Note: caller is responsible for managing lifetime of hyphenator
-  void setLocale(const icu::Locale& locale, Hyphenator* hyphenator);
+  //
+  // libtxt extension: always use the default locale so that a cached instance
+  // of the ICU break iterator can be reused.
+  void setLocale();
 
   void resize(size_t size) {
     mTextBuf.resize(size);
@@ -148,6 +151,13 @@ class LineBreaker {
   void addReplacement(size_t start, size_t end, float width);
 
   size_t computeBreaks();
+
+  // libtxt: Add ability to set custom char widths. This allows manual
+  // definition of the widths of arbitrary glyphs. To linebreak properly, call
+  // addStyleRun with nullptr as the paint property, which will lead it to
+  // assume the width has already been calculated. Used for properly breaking
+  // inline placeholders.
+  void setCustomCharWidth(size_t offset, float width);
 
   const int* getBreaks() const { return mBreaks.data(); }
 
